@@ -1,2 +1,5 @@
-# go_todo_api
-provide todo api for todo_center
+# Go TODO API
+
+A TODO API server written in Go.
+
+See [the central repository](https://github.com/scubism/todo_center) for installation.

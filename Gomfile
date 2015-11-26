@@ -1,0 +1,5 @@
+# A simple first web framework
+gom 'github.com/gin-gonic/gin'
+
+# A MongoDB driver for the Go language
+gom "gopkg.in/mgo.v2"

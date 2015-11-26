@@ -5,8 +5,10 @@ import (
 	"./controllers"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/itsjamie/gin-cors"
 	"os"
 	"runtime"
+	"time"
 )
 
 func main() {
@@ -25,6 +27,16 @@ func StartGin() {
 	defer app.CloseApp()
 
 	router := gin.Default()
+
+	router.Use(cors.Middleware(cors.Config{
+		Origins:         "*",
+		Methods:         "GET, PUT, POST, DELETE",
+		RequestHeaders:  "Origin, Authorization, Content-Type",
+		ExposedHeaders:  "",
+		MaxAge:          50 * time.Second,
+		Credentials:     true,
+		ValidateHeaders: false,
+	}))
 
 	router.GET("/", func(c *gin.Context) {
 		c.String(200, "Hello Go TODO API")

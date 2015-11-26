@@ -3,3 +3,6 @@ gom 'github.com/gin-gonic/gin'
 
 # A MongoDB driver for the Go language
 gom "gopkg.in/mgo.v2"
+
+# For Cross Origin Resource Sharing
+gom "github.com/itsjamie/gin-cors"

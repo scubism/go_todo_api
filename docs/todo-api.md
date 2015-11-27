@@ -4,9 +4,9 @@ Todo API
 Set environments:
 
 ```
-LOCALIP=$(ip addr | grep "global enp" | awk '{print $2}' | sed 's/\/.*$//')
-ENDPOINT="http://$LOCALIP:8001"
+ENDPOINT="http://$LOCALIP:$GO_TODO_API_PORT"
 ITEM_ID="xxx"
+# Here, the variables such as $LOCALIP are defined in default.env in the central repository.
 ```
 
 Create an item:

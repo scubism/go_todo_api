@@ -6,7 +6,7 @@ Set environments:
 ```
 ENDPOINT="http://$LOCALIP:$GO_TODO_API_PORT"
 ITEM_ID="xxx"
-# Here, the variables such as $LOCALIP are defined in default.env in the central repository.
+# Here, the variables such as $LOCALIP are defined in default.env in the central repository
 ```
 
 Create an item:

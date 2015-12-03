@@ -48,7 +48,11 @@ func UpdateTodo(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.BindJSON(&todo)
+
+	if err = c.BindJSON(&todo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	if err = todo.Update(); err != nil {
 		c.String(http.StatusBadRequest, err.Error())
@@ -67,6 +71,27 @@ func DeleteTodo(c *gin.Context) {
 
 	if err := todo.Delete(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, todo)
+}
+
+func MoveTodo(c *gin.Context) {
+	todo, err := models.FindTodoById(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var todoMove models.TodoMove
+	if err = c.BindJSON(&todoMove); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err = todo.Move(&todoMove); err != nil {
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 

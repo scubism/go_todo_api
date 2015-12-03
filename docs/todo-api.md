@@ -46,3 +46,12 @@ curl -H "Accept:application/json" \
 -H "Content-Type:application/json" \
 -XDELETE "$ENDPOINT/v1/todos/$ITEM_ID"
 ```
+
+Move an item:
+
+```
+curl -H "Accept:application/json" \
+-H "Content-Type:application/json" \
+-XPOST "$ENDPOINT/v1/todos/$ITEM_ID/move" \
+-d "{\"prior_sibling_id\": \"$PRIOR_SIBLING_ID\"}"
+```

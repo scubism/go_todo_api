@@ -49,6 +49,8 @@ func StartGin() {
 		v1.POST("/todos", controllers.CreateTodo)
 		v1.PUT("/todos/:id", controllers.UpdateTodo)
 		v1.DELETE("/todos/:id", controllers.DeleteTodo)
+
+		v1.POST("/todos/:id/move", controllers.MoveTodo)
 	}
 
 	port := os.Getenv("PORT")

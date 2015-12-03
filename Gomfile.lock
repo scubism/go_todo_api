@@ -1,0 +1,3 @@
+gom 'github.com/gin-gonic/gin', :commit => '52fcc5dbf6e94df33ad313858fb94b713e9d1b4a'
+gom 'gopkg.in/mgo.v2', :commit => '4d04138ffef2791c479c0c8bbffc30b34081b8d9'
+gom 'github.com/itsjamie/gin-cors', :commit => 'fa65524ba44fd80566a2e3923d1504d55e54f586'

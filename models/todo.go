@@ -30,8 +30,12 @@ func findRootTodo() (*Todo, error) {
 		One(&root)
 
 	if err == mgo.ErrNotFound {
+		root.Id = bson.NewObjectId()
 		root.Title = "root"
-		err = root.Create()
+		err = app.DB.C("todos").Insert(&root)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &root, err

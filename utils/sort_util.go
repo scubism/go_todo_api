@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"errors"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -11,25 +10,35 @@ func MoveInChildren(
 	priorSiblingId string) ([]bson.ObjectId, error) {
 
 	N := len(children)
-	converted := make([]bson.ObjectId, N)
+
 	var foundTargetId = false
-	var foundPriorSiblingId = false
+	for i := 0; i < N; i++ {
+		if children[i] == targetId {
+			foundTargetId = true
+			break
+		}
+	}
+
+	if !foundTargetId {
+		children = append(children, targetId)
+		N++
+	}
+
+	converted := make([]bson.ObjectId, N)
 
 	ptr := 0
 	if priorSiblingId == "" {
 		converted[ptr] = targetId
 		ptr++
-		foundPriorSiblingId = true
 		for i := 0; i < N; i++ {
-			if children[i] == targetId {
-				foundTargetId = true
-			} else {
+			if children[i] != targetId {
 				converted[ptr] = children[i]
 				ptr++
 			}
 		}
 	} else {
 		priorSiblingId := bson.ObjectIdHex(priorSiblingId)
+		var foundPriorSiblingId = false
 		for i := 0; i < N; i++ {
 			if children[i] == priorSiblingId {
 				converted[ptr] = priorSiblingId
@@ -37,22 +46,17 @@ func MoveInChildren(
 				converted[ptr] = targetId
 				ptr++
 				foundPriorSiblingId = true
-			} else if children[i] == targetId {
-				foundTargetId = true
-			} else {
+			} else if children[i] != targetId {
 				converted[ptr] = children[i]
 				ptr++
 			}
 		}
+
+		if !foundPriorSiblingId {
+			converted[ptr] = priorSiblingId
+			converted = append(converted, targetId)
+		}
 	}
-	if ptr != N {
-		return nil, errors.New("Unkown sort error")
-	}
-	if !foundTargetId {
-		return nil, errors.New("Target id is not found")
-	}
-	if !foundPriorSiblingId {
-		return nil, errors.New("Prior sibling id is not found")
-	}
+
 	return converted, nil
 }

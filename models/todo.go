@@ -8,6 +8,7 @@ import (
 	"errors"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 )
 
 type Todo struct {
@@ -42,6 +43,7 @@ func findRootTodo() (*Todo, error) {
 }
 
 func FindTodos() ([]Todo, error) {
+
 	root, err := findRootTodo()
 	if err != nil {
 		return nil, err
@@ -49,7 +51,7 @@ func FindTodos() ([]Todo, error) {
 
 	var todos []Todo
 	err = app.DB.C("todos").
-		Find(bson.M{"_id": bson.M{"$in": root.Children}}).
+		Find(bson.M{"parent": root.Id}).
 		Limit(20).
 		Sort("_id").
 		All(&todos)
@@ -64,10 +66,28 @@ func FindTodos() ([]Todo, error) {
 
 	N := len(root.Children)
 	converted := make([]Todo, N)
+	ptr := 0
 	for i := 0; i < N; i++ {
 		if todo, ok := idToTodo[root.Children[i]]; ok {
-			converted[i] = todo
+			converted[ptr] = todo
+			ptr++
+			delete(idToTodo, todo.Id)
+		} else {
+			log.Println("A missing sorted reference: " + root.Children[i].Hex())
+
+			err = app.DB.C("todos").Update(bson.M{"_id": root.Id},
+				bson.M{"$pull": bson.M{"children": root.Children[i]}})
+			if err != nil {
+				// Ignore the error for availability
+				log.Println("Error in todos sort filed pull: " + err.Error())
+			}
 		}
+	}
+	converted = converted[:ptr]
+
+	for _, todo := range idToTodo {
+		log.Println("A missing master todo: " + todo.Id.Hex())
+		converted = append(converted, todo)
 	}
 
 	return converted, err
@@ -96,13 +116,15 @@ func (todo *Todo) Create() error {
 	if err != nil {
 		return err
 	}
+
 	err = app.DB.C("todos").Update(bson.M{"_id": root.Id},
 		bson.M{"$addToSet": bson.M{"children": todo.Id}})
 	if err != nil {
-		// For better consistency
-		err = app.DB.C("todos").Remove(bson.M{"_id": todo.Id})
+		// Ignore the error for availability
+		log.Println("Error in addToSet for sorted references: " + err.Error())
 	}
-	return err
+
+	return nil
 }
 
 func (todo *Todo) Update() error {
@@ -115,12 +137,19 @@ func (todo *Todo) Delete() error {
 	if err != nil {
 		return err
 	}
-	err = app.DB.C("todos").Update(bson.M{"_id": root.Id},
-		bson.M{"$pull": bson.M{"children": todo.Id}})
+
+	err = app.DB.C("todos").Remove(bson.M{"_id": todo.Id})
 	if err != nil {
 		return err
 	}
-	err = app.DB.C("todos").Remove(bson.M{"_id": todo.Id})
+
+	err = app.DB.C("todos").Update(bson.M{"_id": root.Id},
+		bson.M{"$pull": bson.M{"children": todo.Id}})
+	if err != nil {
+		// Ignore the error for availability
+		log.Println("Error in pull for sorted references: " + err.Error())
+	}
+
 	return err
 }
 

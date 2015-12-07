@@ -52,7 +52,6 @@ func FindTodos() ([]Todo, error) {
 	var todos []Todo
 	err = app.DB.C("todos").
 		Find(bson.M{"parent": root.Id}).
-		Limit(20).
 		Sort("_id").
 		All(&todos)
 	if todos == nil {

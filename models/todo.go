@@ -53,6 +53,9 @@ func FindTodos() ([]Todo, error) {
 	err = app.DB.C("todos").
 		Find(bson.M{"parent": root.Id}).
 		All(&todos)
+	if err != nil {
+		return nil, err
+	}
 	if todos == nil {
 		todos = []Todo{}
 	}

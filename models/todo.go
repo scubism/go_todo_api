@@ -148,7 +148,7 @@ func (todo *Todo) Delete() error {
 		log.Println("Error in pull for sorted references: " + err.Error())
 	}
 
-	return err
+	return nil
 }
 
 func (todo *Todo) Move(todoMove *TodoMove) error {

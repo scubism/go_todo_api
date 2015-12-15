@@ -9,11 +9,13 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
+	"time"
 )
 
 type Todo struct {
 	Id       bson.ObjectId   `json:"id" bson:"_id,omitempty"`
 	Title    string          `json:"title" bson:"title" binding:"required"`
+	DueDate  time.Time       `json:"due_date" bson:"due_date"`
 	Parent   bson.ObjectId   `json:"parent" bson:"parent,omitempty"`
 	Children []bson.ObjectId `json:"children" bson:"children,omitempty"`
 }

@@ -88,34 +88,38 @@ func TestMoveInChildrenForMissingTarget(t *testing.T) {
 	children := generateChildren([]int{0, 1, 2, 3, 4, 5})
 	targetId := bson.ObjectIdHex(getId(6))
 	priorSiblingId := getId(2)
-	actual, _ := utils.MoveInChildren(children, targetId, priorSiblingId)
-	expected := generateChildren([]int{0, 1, 2, 6, 3, 4, 5})
-	assertChildren(t, actual, expected)
+	_, err := utils.MoveInChildren(children, targetId, priorSiblingId)
+	if err == nil {
+		t.Errorf("error sould occur")
+	}
 }
 
 func TestMoveInChildrenForMissingTargetToFirst(t *testing.T) {
 	children := generateChildren([]int{0, 1, 2, 3, 4, 5})
 	targetId := bson.ObjectIdHex(getId(6))
 	priorSiblingId := ""
-	actual, _ := utils.MoveInChildren(children, targetId, priorSiblingId)
-	expected := generateChildren([]int{6, 0, 1, 2, 3, 4, 5})
-	assertChildren(t, actual, expected)
+	_, err := utils.MoveInChildren(children, targetId, priorSiblingId)
+	if err == nil {
+		t.Errorf("error sould occur")
+	}
 }
 
 func TestMoveInChildrenForMissingPriorSiblingId(t *testing.T) {
 	children := generateChildren([]int{0, 1, 2, 3, 4, 5})
 	targetId := bson.ObjectIdHex(getId(4))
 	priorSiblingId := getId(6)
-	actual, _ := utils.MoveInChildren(children, targetId, priorSiblingId)
-	expected := generateChildren([]int{0, 1, 2, 3, 5, 6, 4})
-	assertChildren(t, actual, expected)
+	_, err := utils.MoveInChildren(children, targetId, priorSiblingId)
+	if err == nil {
+		t.Errorf("error sould occur")
+	}
 }
 
 func TestMoveInChildrenForMissingTargetAndPriorSiblingId(t *testing.T) {
 	children := generateChildren([]int{0, 1, 2, 3, 4, 5})
 	targetId := bson.ObjectIdHex(getId(6))
 	priorSiblingId := getId(7)
-	actual, _ := utils.MoveInChildren(children, targetId, priorSiblingId)
-	expected := generateChildren([]int{0, 1, 2, 3, 4, 5, 7, 6})
-	assertChildren(t, actual, expected)
+	_, err := utils.MoveInChildren(children, targetId, priorSiblingId)
+	if err == nil {
+		t.Errorf("error sould occur")
+	}
 }

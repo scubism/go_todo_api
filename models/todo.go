@@ -1,6 +1,6 @@
 package models
 
-// TODO clean up for consistency
+// TODO Clean up for unreachable nodes.
 
 import (
 	"../app"
@@ -13,47 +13,51 @@ import (
 )
 
 type Todo struct {
-	Id       bson.ObjectId   `json:"id" bson:"_id,omitempty"`
-	Title    string          `json:"title" bson:"title" binding:"required"`
-	DueDate  time.Time       `json:"due_date" bson:"due_date"`
-	Parent   bson.ObjectId   `json:"parent" bson:"parent,omitempty"`
-	Children []bson.ObjectId `json:"children" bson:"children,omitempty"`
+	Id      bson.ObjectId `json:"id" bson:"_id,omitempty"`
+	Title   string        `json:"title" bson:"title" binding:"required"`
+	DueDate time.Time     `json:"due_date" bson:"due_date"`
+}
+
+type TodoGroup struct {
+	Id    bson.ObjectId   `json:"id" bson:"_id,omitempty"`
+	Title string          `json:"title" bson:"title" binding:"required"`
+	Todos []bson.ObjectId `json:"todos" bson:"todos,omitempty"`
 }
 
 type TodoMove struct {
-	// Parent       bson.ObjectId `json:"parent"`
 	PriorSiblingId string `json:"prior_sibling_id"`
 }
 
-func findRootTodo() (*Todo, error) {
-	root := Todo{}
-	err := app.DB.C("todos").
-		Find(bson.M{"parent": nil}).
-		Select(bson.M{"children": 1}).
-		One(&root)
+func findTodoGroup() (*TodoGroup, error) {
+	// TODO CRUD for TodoGroup
+	group := TodoGroup{}
+	err := app.DB.C("todo_groups").
+		Find(bson.M{}).
+		Select(bson.M{"todos": 1}).
+		One(&group)
 
 	if err == mgo.ErrNotFound {
-		root.Id = bson.NewObjectId()
-		root.Title = "root"
-		err = app.DB.C("todos").Insert(&root)
+		group.Id = bson.NewObjectId()
+		group.Title = "root"
+		err = app.DB.C("todo_groups").Insert(&group)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return &root, err
+	return &group, err
 }
 
 func FindTodos() ([]Todo, error) {
 
-	root, err := findRootTodo()
+	group, err := findTodoGroup()
 	if err != nil {
 		return nil, err
 	}
 
 	var todos []Todo
 	err = app.DB.C("todos").
-		Find(bson.M{"parent": root.Id}).
+		Find(bson.M{"_id": bson.M{"$in": group.Todos}}).
 		All(&todos)
 	if err != nil {
 		return nil, err
@@ -62,38 +66,21 @@ func FindTodos() ([]Todo, error) {
 		todos = []Todo{}
 	}
 
+	N := len(group.Todos)
+	sortedTodos := make([]Todo, N)
 	idToTodo := make(map[bson.ObjectId]Todo)
 	for _, todo := range todos {
 		idToTodo[todo.Id] = todo
 	}
-
-	N := len(root.Children)
-	converted := make([]Todo, N)
 	ptr := 0
 	for i := 0; i < N; i++ {
-		if todo, ok := idToTodo[root.Children[i]]; ok {
-			converted[ptr] = todo
+		if todo, ok := idToTodo[group.Todos[i]]; ok {
+			sortedTodos[ptr] = todo
 			ptr++
-			delete(idToTodo, todo.Id)
-		} else {
-			log.Println("A missing sorted reference: " + root.Children[i].Hex())
-
-			err = app.DB.C("todos").Update(bson.M{"_id": root.Id},
-				bson.M{"$pull": bson.M{"children": root.Children[i]}})
-			if err != nil {
-				// Ignore the error for availability
-				log.Println("Error in todos sort filed pull: " + err.Error())
-			}
 		}
 	}
-	converted = converted[:ptr]
 
-	for _, todo := range idToTodo {
-		log.Println("A missing master todo: " + todo.Id.Hex())
-		converted = append(converted, todo)
-	}
-
-	return converted, err
+	return sortedTodos[:ptr], err
 }
 
 func FindTodoById(id string) (*Todo, error) {
@@ -108,23 +95,21 @@ func FindTodoById(id string) (*Todo, error) {
 }
 
 func (todo *Todo) Create() error {
-	root, err := findRootTodo()
+	group, err := findTodoGroup()
 	if err != nil {
 		return err
 	}
 
 	todo.Id = bson.NewObjectId()
-	todo.Parent = root.Id
 	err = app.DB.C("todos").Insert(&todo)
 	if err != nil {
 		return err
 	}
 
-	err = app.DB.C("todos").Update(bson.M{"_id": root.Id},
-		bson.M{"$addToSet": bson.M{"children": todo.Id}})
+	err = app.DB.C("todo_groups").Update(bson.M{"_id": group.Id},
+		bson.M{"$addToSet": bson.M{"todos": todo.Id}})
 	if err != nil {
-		// Ignore the error for availability
-		log.Println("Error in addToSet for sorted references: " + err.Error())
+		return err
 	}
 
 	return nil
@@ -136,39 +121,39 @@ func (todo *Todo) Update() error {
 }
 
 func (todo *Todo) Delete() error {
-	root, err := findRootTodo()
+	group, err := findTodoGroup()
+	if err != nil {
+		return err
+	}
+
+	err = app.DB.C("todo_groups").Update(bson.M{"_id": group.Id},
+		bson.M{"$pull": bson.M{"todos": todo.Id}})
 	if err != nil {
 		return err
 	}
 
 	err = app.DB.C("todos").Remove(bson.M{"_id": todo.Id})
 	if err != nil {
-		return err
-	}
-
-	err = app.DB.C("todos").Update(bson.M{"_id": root.Id},
-		bson.M{"$pull": bson.M{"children": todo.Id}})
-	if err != nil {
-		// Ignore the error for availability
-		log.Println("Error in pull for sorted references: " + err.Error())
+		log.Println("Error in removing related todos: " + err.Error())
+		// Ignore err
 	}
 
 	return nil
 }
 
 func (todo *Todo) Move(todoMove *TodoMove) error {
-	root, err := findRootTodo()
+	group, err := findTodoGroup()
 	if err != nil {
 		return err
 	}
 
-	children, err := utils.MoveInChildren(
-		root.Children, todo.Id, todoMove.PriorSiblingId)
+	movedTodos, err := utils.MoveInChildren(
+		group.Todos, todo.Id, todoMove.PriorSiblingId)
 	if err != nil {
 		return err
 	}
-	root.Children = children
+	group.Todos = movedTodos
 
-	err = app.DB.C("todos").Update(bson.M{"_id": root.Id}, &root)
+	err = app.DB.C("todo_groups").Update(bson.M{"_id": group.Id}, &group)
 	return err
 }

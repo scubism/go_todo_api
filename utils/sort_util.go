@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -20,8 +21,7 @@ func MoveInChildren(
 	}
 
 	if !foundTargetId {
-		children = append(children, targetId)
-		N++
+		return nil, errors.New("Target id is not found")
 	}
 
 	converted := make([]bson.ObjectId, N)
@@ -53,8 +53,7 @@ func MoveInChildren(
 		}
 
 		if !foundPriorSiblingId {
-			converted[ptr] = priorSiblingId
-			converted = append(converted, targetId)
+			return nil, errors.New("Prior sibling id is not found")
 		}
 	}
 

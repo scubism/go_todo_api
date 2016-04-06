@@ -4,7 +4,7 @@ Todo API
 Set environments:
 
 ```
-ENDPOINT="http://$HOST:$GO_TODO_API_PORT"
+ENDPOINT="https://$HOST:$API_GATEWAY_SSL_PORT"
 ITEM_ID="xxx"
 # Here, the variables such as $HOST are defined in default.env in the central repository
 ```

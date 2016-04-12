@@ -1,15 +1,11 @@
 package models
 
-// TODO Clean up for unreachable nodes.
-
 import (
-	"../app"
-	"../utils"
-	"errors"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
 	"time"
+	"todo_center/go_todo_api/utils"
 )
 
 type Todo struct {
@@ -28,10 +24,10 @@ type TodoMove struct {
 	PriorSiblingId string `json:"prior_sibling_id"`
 }
 
-func findTodoGroup() (*TodoGroup, error) {
+func findTodoGroup(db *mgo.Database) (*TodoGroup, error) {
 	// TODO CRUD for TodoGroup
 	group := TodoGroup{}
-	err := app.DB.C("todo_groups").
+	err := db.C("todo_groups").
 		Find(bson.M{}).
 		Select(bson.M{"todos": 1}).
 		One(&group)
@@ -39,7 +35,7 @@ func findTodoGroup() (*TodoGroup, error) {
 	if err == mgo.ErrNotFound {
 		group.Id = bson.NewObjectId()
 		group.Title = "root"
-		err = app.DB.C("todo_groups").Insert(&group)
+		err = db.C("todo_groups").Insert(&group)
 		if err != nil {
 			return nil, err
 		}
@@ -48,15 +44,15 @@ func findTodoGroup() (*TodoGroup, error) {
 	return &group, err
 }
 
-func FindTodos() ([]Todo, error) {
+func FindTodos(db *mgo.Database) ([]Todo, error) {
 
-	group, err := findTodoGroup()
+	group, err := findTodoGroup(db)
 	if err != nil {
 		return nil, err
 	}
 
 	var todos []Todo
-	err = app.DB.C("todos").
+	err = db.C("todos").
 		Find(bson.M{"_id": bson.M{"$in": group.Todos}}).
 		All(&todos)
 	if err != nil {
@@ -83,30 +79,31 @@ func FindTodos() ([]Todo, error) {
 	return sortedTodos[:ptr], err
 }
 
-func FindTodoById(id string) (*Todo, error) {
-	if !bson.IsObjectIdHex(id) {
-		return nil, errors.New("Id is not a valid format")
+func FindTodoById(db *mgo.Database, id string) (*Todo, error) {
+	if err := utils.ValidateObjectIdHex(id); err != nil {
+		return nil, err
 	}
+
 	todo := Todo{}
-	err := app.DB.C("todos").
+	err := db.C("todos").
 		Find(bson.M{"_id": bson.ObjectIdHex(id)}).
 		One(&todo)
 	return &todo, err
 }
 
-func (todo *Todo) Create() error {
-	group, err := findTodoGroup()
+func (todo *Todo) Create(db *mgo.Database) error {
+	group, err := findTodoGroup(db)
 	if err != nil {
 		return err
 	}
 
 	todo.Id = bson.NewObjectId()
-	err = app.DB.C("todos").Insert(&todo)
+	err = db.C("todos").Insert(&todo)
 	if err != nil {
 		return err
 	}
 
-	err = app.DB.C("todo_groups").Update(bson.M{"_id": group.Id},
+	err = db.C("todo_groups").Update(bson.M{"_id": group.Id},
 		bson.M{"$addToSet": bson.M{"todos": todo.Id}})
 	if err != nil {
 		return err
@@ -115,24 +112,24 @@ func (todo *Todo) Create() error {
 	return nil
 }
 
-func (todo *Todo) Update() error {
-	err := app.DB.C("todos").Update(bson.M{"_id": todo.Id}, &todo)
+func (todo *Todo) Update(db *mgo.Database) error {
+	err := db.C("todos").Update(bson.M{"_id": todo.Id}, &todo)
 	return err
 }
 
-func (todo *Todo) Delete() error {
-	group, err := findTodoGroup()
+func (todo *Todo) Delete(db *mgo.Database) error {
+	group, err := findTodoGroup(db)
 	if err != nil {
 		return err
 	}
 
-	err = app.DB.C("todo_groups").Update(bson.M{"_id": group.Id},
+	err = db.C("todo_groups").Update(bson.M{"_id": group.Id},
 		bson.M{"$pull": bson.M{"todos": todo.Id}})
 	if err != nil {
 		return err
 	}
 
-	err = app.DB.C("todos").Remove(bson.M{"_id": todo.Id})
+	err = db.C("todos").Remove(bson.M{"_id": todo.Id})
 	if err != nil {
 		log.Println("Error in removing related todos: " + err.Error())
 		// Ignore err
@@ -141,8 +138,8 @@ func (todo *Todo) Delete() error {
 	return nil
 }
 
-func (todo *Todo) Move(todoMove *TodoMove) error {
-	group, err := findTodoGroup()
+func (todo *Todo) Move(db *mgo.Database, todoMove *TodoMove) error {
+	group, err := findTodoGroup(db)
 	if err != nil {
 		return err
 	}
@@ -154,6 +151,6 @@ func (todo *Todo) Move(todoMove *TodoMove) error {
 	}
 	group.Todos = movedTodos
 
-	err = app.DB.C("todo_groups").Update(bson.M{"_id": group.Id}, &group)
+	err = db.C("todo_groups").Update(bson.M{"_id": group.Id}, &group)
 	return err
 }

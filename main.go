@@ -1,14 +1,15 @@
 package main
 
 import (
-	"./app"
-	"./controllers"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/itsjamie/gin-cors"
 	"os"
 	"runtime"
 	"time"
+	"todo_center/go_todo_api/app"
+	"todo_center/go_todo_api/controllers"
+	"todo_center/go_todo_api/middlewares"
 )
 
 func main() {
@@ -27,6 +28,8 @@ func StartGin() {
 	defer app.CloseApp()
 
 	router := gin.Default()
+	router.Use(middlewares.ErrorHandler())
+	router.Use(middlewares.ConnectDB(app.DBSession))
 
 	router.Use(cors.Middleware(cors.Config{
 		Origins:         "*",

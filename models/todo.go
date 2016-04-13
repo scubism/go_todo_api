@@ -11,7 +11,7 @@ import (
 type Todo struct {
 	Id      bson.ObjectId `json:"id" bson:"_id,omitempty"`
 	Title   string        `json:"title" bson:"title" binding:"required"`
-	DueDate time.Time     `json:"due_date" bson:"due_date"`
+	DueDate int64         `json:"due_date" bson:"due_date,omitempty"`
 }
 
 type TodoGroup struct {

@@ -4,14 +4,13 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
-	"time"
 	"todo_center/go_todo_api/utils"
 )
 
 type Todo struct {
 	Id      bson.ObjectId `json:"id" bson:"_id,omitempty"`
 	Title   string        `json:"title" bson:"title" binding:"required"`
-	DueDate *time.Time    `json:"due_date" bson:"due_date,omitempty"`
+	DueDate int64         `json:"due_date" bson:"due_date,omitempty"`
 }
 
 type TodoGroup struct {

@@ -4,7 +4,10 @@ Todo API
 Set environments:
 
 ```
-ENDPOINT="https://$HOST:$API_GATEWAY_SSL_PORT"
+# Load config environment
+eval $(./init.sh | grep config_)
+
+ENDPOINT="https://$config_host:$config_todo_api_gateway_port"
 ITEM_ID="xxx"
 # Here, the variables such as $HOST are defined in default.env in the central repository
 ```
@@ -12,7 +15,7 @@ ITEM_ID="xxx"
 Create an item:
 
 ```
-curl -H "Accept:application/json" \
+curl -k -H "Accept:application/json" \
 -H "Content-Type:application/json" \
 -XPOST "$ENDPOINT/v1/todos" \
 -d '{"title": "xxx"}'
@@ -21,19 +24,19 @@ curl -H "Accept:application/json" \
 List items:
 
 ```
-curl $ENDPOINT/v1/todos
+curl -k $ENDPOINT/v1/todos
 ```
 
 Get an item:
 
 ```
-curl $ENDPOINT/v1/todos/$ITEM_ID
+curl -k $ENDPOINT/v1/todos/$ITEM_ID
 ```
 
 Update an item:
 
 ```
-curl -H "Accept:application/json" \
+curl -k -H "Accept:application/json" \
 -H "Content-Type:application/json" \
 -XPUT "$ENDPOINT/v1/todos/$ITEM_ID" \
 -d '{"title": "yyy"}'
@@ -42,7 +45,7 @@ curl -H "Accept:application/json" \
 Delete an item:
 
 ```
-curl -H "Accept:application/json" \
+curl -k -H "Accept:application/json" \
 -H "Content-Type:application/json" \
 -XDELETE "$ENDPOINT/v1/todos/$ITEM_ID"
 ```
@@ -50,7 +53,7 @@ curl -H "Accept:application/json" \
 Move an item:
 
 ```
-curl -H "Accept:application/json" \
+curl -k -H "Accept:application/json" \
 -H "Content-Type:application/json" \
 -XPOST "$ENDPOINT/v1/todos/$ITEM_ID/move" \
 -d "{\"prior_sibling_id\": \"$PRIOR_SIBLING_ID\"}"

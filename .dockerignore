@@ -1,8 +1,6 @@
 .gitignore
 .git
-_vendor
-vendor
-gin-bin
 CHANGELOG.md
 README.md
 docs
+gin-bin

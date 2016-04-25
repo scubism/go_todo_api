@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/itsjamie/gin-cors"
+	"net/http"
 	"os"
 	"runtime"
 	"time"
@@ -41,6 +42,8 @@ func StartGin() {
 		ValidateHeaders: false,
 	}))
 
+	router.LoadHTMLGlob("templates/*")
+
 	router.GET("/", func(c *gin.Context) {
 		c.String(200, "Hello Go TODO API")
 	})
@@ -54,6 +57,10 @@ func StartGin() {
 		v1.DELETE("/todos/:id", controllers.DeleteTodo)
 
 		v1.POST("/todos/:id/move", controllers.MoveTodo)
+
+		v1.GET("/swagger.yml", func(c *gin.Context) {
+			c.HTML(http.StatusOK, "swagger.yml", gin.H{})
+		})
 	}
 
 	port := os.Getenv("PORT")

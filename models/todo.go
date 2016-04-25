@@ -12,6 +12,7 @@ type Todo struct {
 	Title   string        `json:"title" bson:"title" binding:"required"`
 	DueDate int64         `json:"due_date" bson:"due_date,omitempty"`
 	Color   string        `json:"color" bson:"color"`
+	Marked  int8         `json:"marked" bson:"marked"`
 }
 
 type TodoGroup struct {

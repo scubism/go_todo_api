@@ -231,6 +231,7 @@
                         "required": true,
                         "type": "string"
                     }
+                    
                 ],
 
                 "responses": 
@@ -276,6 +277,13 @@
                         "description": "todo id",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "todo param",
+                        "dataType": "Todo",
+                        "paramType": "body"
                     }
                 ],
 

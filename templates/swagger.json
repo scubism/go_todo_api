@@ -1,0 +1,353 @@
+{
+    "swagger": "2.0",
+    "info": 
+    {
+        "description": "Go Todo REST Api",
+        "version": "1.0.0",
+        "title": "Go Todo API",
+        "contact": 
+        {
+            "email": "l_tung@stagegroup.jp"
+        },
+
+        "license": 
+        {
+            "name": "Released under the MIT License."
+        }
+    },
+
+    "host": "100.94.47.221",
+    "basePath": "/v1",
+    "tags": 
+    [
+        {
+            "name": "todo",
+            "description": "Todo API",
+            "externalDocs": 
+            {
+                "description": "comming soon",
+                "url": "xxxx"
+            }
+        }
+    ],
+
+    "schemes": 
+    [
+        "https"
+    ],
+
+    "paths": 
+    {
+        "/todos": 
+        {
+            "get": 
+            {
+                "summary": "Get todo list",
+                "description": "Returns all todo records that have in root group",
+                "produces": 
+                [
+                    "application/json"
+                ],
+
+                "responses": 
+                {
+                    "200": 
+                    {
+                        "description": "A list of todos.",
+                        "schema": 
+                        {
+                            "type": "array",
+                            "items": 
+                            [
+                                {
+                                    "$ref": "#/definitions/Todo"
+                                }
+                            ]
+                        }
+                    },
+
+                    "default": 
+                    {
+                        "description": "Unexpected error",
+                        "schema": 
+                        {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+             "post": 
+            {
+                "summary": "Create todo",
+                "description": "Create and Add todo a record to root group",
+                "produces": 
+                [
+                    "application/json"
+                ],
+
+                "parameters": 
+                [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "todo param",
+                        "dataType": "Todo",
+                        "paramType": "body"
+                    }
+                ],
+
+                "responses": 
+                {
+                    "200": 
+                    {
+                       "description": "A todo record added",
+                       "schema": 
+                        {
+                            "$ref": "#/definitions/Todo"
+                        }
+                    },
+
+                    "default": 
+                    {
+                        "description": "Unexpected error",
+                        "schema": 
+                        {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+
+        "/todos/{id}": 
+        {
+            "get": 
+            {
+                "summary": "Get todo record",
+                "description": "Return a todo record",
+                "produces": 
+                [
+                    "application/json"
+                ],
+
+                "parameters": 
+                [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "todo id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+
+                "responses": 
+                {
+                    "200": 
+                    {
+                        "description": "A todo record.",
+                        "schema": 
+                        {
+                            "$ref": "#/definitions/Todo"
+                        }
+                    },
+
+                    "default": 
+                    {
+                        "description": "Unexpected error",
+                        "schema": 
+                        {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            
+            "put": 
+            {
+                "summary": "update a todo record",
+                "description": "Return the updated record",
+                "produces": 
+                [
+                    "application/json"
+                ],
+
+                "parameters": 
+                [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "todo param",
+                        "dataType": "Todo",
+                        "paramType": "body"
+                    },
+                    
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "todo id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+
+                "responses": 
+                {
+                    "200": 
+                    {
+                        "description": "A todo record.",
+                        "schema": 
+                        {
+                            "$ref": "#/definitions/Todo"
+                        }
+                    },
+
+                    "default": 
+                    {
+                        "description": "Unexpected error",
+                        "schema": 
+                        {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            
+            "delete": 
+            {
+                "summary": "delete a todo record",
+                "description": "Return the deleted record",
+                "produces": 
+                [
+                    "application/json"
+                ],
+
+                "parameters": 
+                [                    
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "todo id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+
+                "responses": 
+                {
+                    "200": 
+                    {
+                        "description": "The deleted record.",
+                        "schema": 
+                        {
+                            "$ref": "#/definitions/Todo"
+                        }
+                    },
+
+                    "default": 
+                    {
+                        "description": "Unexpected error",
+                        "schema": 
+                        {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        
+        
+        "/todos/{id}/move": 
+        {
+             "post": 
+            {
+                "summary": "Move todo record to root group",
+                "description": "move a todo record to root group",
+                "produces": 
+                [
+                    "application/json"
+                ],
+
+                "parameters": 
+                [                 
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "todo id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+
+                "responses": 
+                {
+                    "200": 
+                    {
+                       "description": "A todo record added",
+                       "schema": 
+                        {
+                            "$ref": "#/definitions/Todo"
+                        }
+                    },
+
+                    "default": 
+                    {
+                        "description": "Unexpected error",
+                        "schema": 
+                        {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    "definitions": 
+    {
+        "Todo": 
+        {
+            "type": "object",
+            "properties": 
+            {
+                "id": 
+                {
+                    "type": "string"
+                },
+
+                "title": 
+                {
+                    "type": "string"
+                },
+
+                "due_date": 
+                {
+                    "type": "string",
+                    "format": "date"
+                },
+
+                "color": 
+                {
+                    "type": "string"
+                },
+
+                "marked": 
+                {
+                    "type": "boolean"
+                }
+            }
+        },
+
+        "Error": 
+        {
+            "type": "object",
+            "properties": 
+            {
+                "message": 
+                {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

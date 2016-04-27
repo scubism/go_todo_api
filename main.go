@@ -59,12 +59,9 @@ func StartGin() {
 		v1.POST("/todos/:id/move", controllers.MoveTodo)
 
 		v1.GET("/swagger.yml", func(c *gin.Context) {
-			c.HTML(http.StatusOK, "swagger.json", gin.H{})
+			c.HTML(http.StatusOK, "swagger.yml", gin.H{})
 		})
 		
-		v1.GET("/swagger.json", func(c *gin.Context) {
-			c.HTML(http.StatusOK, "swagger.json", gin.H{})
-		})
 	}
 
 	port := os.Getenv("PORT")

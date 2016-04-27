@@ -7,6 +7,7 @@
       email: "l_tung@stagegroup.jp"
     license: 
       name: "Released under the MIT License."
+      url: "https://opensource.org/licenses/MIT"
   host: "100.94.47.221"
   basePath: "/v1"
   tags: 
@@ -21,6 +22,8 @@
   paths: 
     /todos: 
       get: 
+        tags: 
+          - "todo"
         summary: "Get todo list"
         description: "Returns all todo records that have in root group"
         produces: 
@@ -38,6 +41,8 @@
             schema: 
               $ref: "#/definitions/Error"
       post: 
+        tags: 
+          - "todo"
         summary: "Create todo"
         description: "Create and Add todo a record to root group"
         produces: 
@@ -47,12 +52,12 @@
             name: "body"
             in: "body"
             description: "todo param"
-            dataType: "Todo"
-            paramType: "body"
+            schema: 
+              $ref: "#/definitions/Todo"
         responses: 
           200: 
             description: "A todo record added"
-            schema: 
+            schema:  
               $ref: "#/definitions/Todo"
           default: 
             description: "Unexpected error"
@@ -60,6 +65,8 @@
               $ref: "#/definitions/Error"
     /todos/{id}: 
       get: 
+        tags: 
+          - "todo"
         summary: "Get todo record"
         description: "Return a todo record"
         produces: 
@@ -81,6 +88,8 @@
             schema: 
               $ref: "#/definitions/Error"
       put: 
+        tags: 
+          - "todo"
         summary: "update a todo record"
         description: "Return the updated record"
         produces: 
@@ -90,8 +99,8 @@
             name: "body"
             in: "body"
             description: "todo param"
-            dataType: "Todo"
-            paramType: "body"
+            schema: 
+              $ref: "#/definitions/Todo"
           - 
             name: "id"
             in: "path"
@@ -108,6 +117,8 @@
             schema: 
               $ref: "#/definitions/Error"
       delete: 
+        tags: 
+          - "todo"
         summary: "delete a todo record"
         description: "Return the deleted record"
         produces: 
@@ -130,23 +141,25 @@
               $ref: "#/definitions/Error"
     /todos/{id}/move: 
       post: 
+        tags: 
+          - "todo"
         summary: "Move todo record to root group"
         description: "move a todo record to root group"
         produces: 
           - "application/json"
         parameters: 
           - 
+            name: "body"
+            in: "body"
+            description: "todo param"
+            schema: 
+              $ref: "#/definitions/Todo"
+          - 
             name: "id"
             in: "path"
             description: "todo id"
             required: true
             type: "string"
-          - 
-            name: "body"
-            in: "body"
-            description: "todo param"
-            dataType: "Todo"
-            paramType: "body"
         responses: 
           200: 
             description: "A todo record added"

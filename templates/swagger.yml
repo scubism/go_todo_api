@@ -53,7 +53,7 @@
             in: "body"
             description: "todo param"
             schema: 
-              $ref: "#/definitions/Todo"
+              $ref: "#/definitions/TodoRequest"
         responses: 
           200: 
             description: "A todo record added"
@@ -100,7 +100,7 @@
             in: "body"
             description: "todo param"
             schema: 
-              $ref: "#/definitions/Todo"
+              $ref: "#/definitions/TodoRequest"
           - 
             name: "id"
             in: "path"
@@ -170,11 +170,9 @@
             schema: 
               $ref: "#/definitions/Error"
   definitions: 
-    Todo: 
+    TodoRequest:
       type: "object"
       properties: 
-        id: 
-          type: "string"
         title: 
           type: "string"
         due_date: 
@@ -184,8 +182,16 @@
           type: "string"
         marked: 
           type: "boolean"
+    Todo:
+      "allOf":
+        - 
+          $ref: "#/definitions/TodoRequest"
+        -
+          properties: 
+            id: 
+              type: "string"
     Error: 
       type: "object"
       properties: 
-        message: 
+        error: 
           type: "string"

@@ -31,14 +31,14 @@
         responses: 
           200: 
             description: "A list of todos."
-            schema: 
+            schema:
+              title: "ArrayOfTodo"
               type: "array"
-              items: 
-                - 
-                  $ref: "#/definitions/Todo"
-          default: 
+              items:
+                $ref: "#/definitions/Todo"
+          default:
             description: "Unexpected error"
-            schema: 
+            schema:
               $ref: "#/definitions/Error"
       post: 
         tags: 
@@ -47,21 +47,40 @@
         description: "Create and Add todo a record to root group"
         produces: 
           - "application/json"
-        parameters: 
-          - 
-            name: "body"
-            in: "body"
-            description: "todo param"
-            schema: 
-              $ref: "#/definitions/TodoRequest"
-        responses: 
-          200: 
+        parameters:
+          - name: "title"
+            in: "formData"
+            description: "Title of the todo"
+            required: true
+            type: string
+          - name: "todo_groups_id"
+            in: "formData"
+            description: "Id of todo group"
+            type: integer
+          - name: "color"
+            in: "formData"
+            description: "Color of the todo"
+            type: string
+          - name: "due_date"
+            in: "formData"
+            description: "Expire date of the todo"
+            type: string
+          - name: "marked"
+            in: "formData"
+            description: "Mark the todo as done"
+            type: boolean
+        responses:
+          200:
             description: "A todo record added"
-            schema:  
+            schema:
               $ref: "#/definitions/Todo"
-          default: 
+          422:
+            description: "Missing parameters"
+            schema:
+              $ref: "#/definitions/ErrorMissingField"
+          default:
             description: "Unexpected error"
-            schema: 
+            schema:
               $ref: "#/definitions/Error"
     /todos/{id}: 
       get: 
@@ -71,21 +90,24 @@
         description: "Return a todo record"
         produces: 
           - "application/json"
-        parameters: 
-          - 
-            name: "id"
+        parameters:
+          - name: "id"
             in: "path"
             description: "todo id"
             required: true
-            type: "string"
-        responses: 
-          200: 
+            type: "number"
+        responses:
+          200:
             description: "A todo record."
-            schema: 
+            schema:
               $ref: "#/definitions/Todo"
-          default: 
+          500:
+            description: "Couldn't find the todo"
+            schema:
+              $ref: "#/definitions/Error"
+          default:
             description: "Unexpected error"
-            schema: 
+            schema:
               $ref: "#/definitions/Error"
       put: 
         tags: 
@@ -94,27 +116,45 @@
         description: "Return the updated record"
         produces: 
           - "application/json"
-        parameters: 
-          - 
-            name: "body"
-            in: "body"
-            description: "todo param"
-            schema: 
-              $ref: "#/definitions/TodoRequest"
-          - 
-            name: "id"
+        parameters:
+          - name: "title"
+            in: "formData"
+            description: "Title of the todo"
+            required: true
+            type: string
+          - name: "color"
+            in: "formData"
+            description: "Color of the todo"
+            type: string
+          - name: "due_date"
+            in: "formData"
+            description: "Expire date of the todo"
+            type: string
+          - name: "marked"
+            in: "formData"
+            description: "Mark the todo as done"
+            type: boolean
+          - name: "id"
             in: "path"
             description: "todo id"
             required: true
-            type: "string"
-        responses: 
-          200: 
+            type: "number"
+        responses:
+          200:
             description: "A todo record."
-            schema: 
+            schema:
               $ref: "#/definitions/Todo"
-          default: 
+          422:
+            description: "Missing parameters"
+            schema:
+              $ref: "#/definitions/ErrorMissingField"
+          500:
+            description: "Couldn't find the todo"
+            schema:
+              $ref: "#/definitions/Error"
+          default:
             description: "Unexpected error"
-            schema: 
+            schema:
               $ref: "#/definitions/Error"
       delete: 
         tags: 
@@ -123,21 +163,24 @@
         description: "Return the deleted record"
         produces: 
           - "application/json"
-        parameters: 
-          - 
-            name: "id"
+        parameters:
+          - name: "id"
             in: "path"
             description: "todo id"
             required: true
-            type: "string"
-        responses: 
-          200: 
+            type: "number"
+        responses:
+          200:
             description: "The deleted record."
-            schema: 
+            schema:
               $ref: "#/definitions/Todo"
-          default: 
+          500:
+            description: "Couldn't find the todo"
+            schema:
+              $ref: "#/definitions/Error"
+          default:
             description: "Unexpected error"
-            schema: 
+            schema:
               $ref: "#/definitions/Error"
     /todos/{id}/move: 
       post: 
@@ -147,51 +190,55 @@
         description: "move a todo record to root group"
         produces: 
           - "application/json"
-        parameters: 
-          - 
-            name: "body"
-            in: "body"
-            description: "todo param"
-            schema: 
-              $ref: "#/definitions/Todo"
-          - 
-            name: "id"
+        parameters:
+          - name: "prior_sibling_id"
+            in: "formData"
+            description: "Id of prior sibling Todo"
+            type: "number"
+          - name: "id"
             in: "path"
-            description: "todo id"
+            description: "todo Id"
             required: true
-            type: "string"
-        responses: 
-          200: 
+            type: "number"
+        responses:
+          200:
             description: "A todo record added"
-            schema: 
+            schema:
               $ref: "#/definitions/Todo"
-          default: 
-            description: "Unexpected error"
-            schema: 
+          500:
+            description: "Couldn't find the todo"
+            schema:
               $ref: "#/definitions/Error"
-  definitions: 
-    TodoRequest:
-      type: "object"
-      properties: 
-        title: 
-          type: "string"
-        due_date: 
-          type: "string"
-          format: "date"
-        color: 
-          type: "string"
-        marked: 
-          type: "boolean"
+          default:
+            description: "Unexpected error"
+            schema:
+              $ref: "#/definitions/Error"
+  definitions:
     Todo:
-      "allOf":
-        - 
-          $ref: "#/definitions/TodoRequest"
-        -
-          properties: 
-            id: 
-              type: "string"
-    Error: 
+      type: object
+      properties:
+        title:
+          type: string
+        todo_groups_id:
+          type: string
+        color:
+          type: string
+        due_date:
+          type: string
+          format: date
+        sort_order:
+          type: integer
+        marked:
+          type: boolean
+    Error:
       type: "object"
-      properties: 
-        error: 
+      properties:
+        message:
           type: "string"
+    ErrorMissingField:
+      type: object
+      properties:
+        title:
+          type: array
+          items:
+            type: string

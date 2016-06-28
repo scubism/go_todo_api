@@ -49,7 +49,13 @@ func CreateTodo(c *gin.Context) {
 }
 
 func UpdateTodo(c *gin.Context) {
-	todo, err := models.FindTodoById(app.GetDB(c), c.Param("id"))
+	var todo models.Todo
+
+	if err := c.BindJSON(&todo); err != nil {
+		return
+	}
+
+	oldTodo, err := models.FindTodoById(app.GetDB(c), c.Param("id"))
 	if err != nil {
 		if err == mgo.ErrNotFound {
 			utils.AbortWithPublicError(c, http.StatusUnauthorized, err, "You can't access to the todo")
@@ -58,12 +64,7 @@ func UpdateTodo(c *gin.Context) {
 		}
 		return
 	}
-
-	_Id := todo.Id
-	if err = c.BindJSON(&todo); err != nil {
-		return
-	}
-	todo.Id = _Id
+	todo.Id = oldTodo.Id
 
 	if err = todo.Update(app.GetDB(c)); err != nil {
 		utils.AbortWithPublicError(c, http.StatusInternalServerError, err, "Couldn't update the todo")

@@ -9,10 +9,10 @@ import (
 
 type Todo struct {
 	Id      bson.ObjectId `json:"id" bson:"_id,omitempty"`
-	Title   string        `json:"title" bson:"title" binding:"required"`
+	Title   string        `json:"title" bson:"title" binding:"required,max=16"`
 	DueDate int64         `json:"due_date" bson:"due_date,omitempty"`
 	Color   string        `json:"color" bson:"color"`
-	Marked  int8         `json:"marked" bson:"marked"`
+	Marked  int8          `json:"marked" bson:"marked"`
 }
 
 type TodoGroup struct {
